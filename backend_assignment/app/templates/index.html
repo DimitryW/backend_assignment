@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖文留言板</title>
+    <style>
+        #content-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        
+        #content {
+            border: 1px solid #b7b7b7;
+            height: 100vh;
+        }
+        
+        #content>form>input {
+            margin: 5px;
+        }
+        
+        hr {
+            width: 98%;
+        }
+        
+        img {
+            height: 20%;
+        }
+        
+        #message-btn,
+        #content>form>label,
+        #content>div,
+        #content>img,
+        #submit-btn {
+            margin: 0px 0 0 10px;
+        }
+        
+        @media screen and (min-width:1200px) {
+            #content {
+                width: 1000px
+            }
+        }
+        
+        @media screen and (max-width:1200px) {
+            #content {
+                width: 1000px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content-wrapper">
+        <div id="content">
+            <div style="font-weight: 700; font-size: 20px;margin: 10px 0 10px 10px;">發表一篇圖文</div>
+            <form id="submit-form" action="/" method="POST" enctype="multipart/form-data">
+                <label for="text-message">文字內容</label>
+                <input id="text-message" type="text" name="text">
+                <br>
+                <label for="pic-message">圖片檔案</label>
+                <input id="pic-message" type="file" name="file">
+                <br>
+                <!-- <input type="submit" value="送出"> -->
+            </form>
+            <button id="submit-btn" onclick="submit();">送出</button>
+            <hr>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    // const submitMessage = () => {
+    //     let text = document.getElementById("text-message").value;
+    //     let pic = document.getElementById("pic-message").value;
+    //     let content = document.getElementById("content");
+    //     let textDiv = document.createElement("div");
+    //     let picDiv = document.createElement("img");
+    //     let hr = document.createElement("hr");
+    //     textDiv.textContent = text;
+    //     picDiv.src = pic;
+    //     for (i of[textDiv, picDiv, hr]) {
+    //         content.appendChild(i);
+    //     }
+    // }
+
+    // 不用form提交表單(因為會刷新網頁)，改用FormData()物件提交，將檔案傳到後端上傳S3
+    const submit = async() => {
+
+        const formData = new FormData();
+        const file = document.getElementById("pic-message");
+        formData.append("pic", file.files[0]);
+        formData.append("text", document.getElementById("text-message").value);
+
+        // let src = "http://127.0.0.1:3000/"
+        let src = "http://3.230.236.135:3000/"
+            // 將 FormData 放到 fetch 的 body 裡頭，瀏覽器會自動幫你以 multipart/form-data 的形式傳送
+        let res = await fetch(src + 'api', {
+            method: 'POST',
+            body: formData
+        })
+        let data = await res.json()
+
+        let text = document.getElementById("text-message").value;
+        let content = document.getElementById("content");
+        let textDiv = document.createElement("div");
+        let picDiv = document.createElement("img");
+        let hr = document.createElement("hr");
+        textDiv.textContent = text;
+        if (data["pic_src"]) {
+            picDiv.src = "http://d7h07qlpoj67x.cloudfront.net/" + data["pic_src"];
+            for (i of[textDiv, picDiv, hr]) {
+                content.appendChild(i);
+            }
+        } else {
+            for (i of[textDiv, hr]) {
+                content.appendChild(i);
+            }
+        }
+        document.getElementById("submit-form").reset()
+    }
+</script>
+
+</html>

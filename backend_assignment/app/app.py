@@ -5,8 +5,8 @@ from model.model import BoardMsg
 
 s3 = boto3.client(
     "s3",
-    aws_access_key_id="AKIAUY7TTKFNVJXIU66I",
-    aws_secret_access_key="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"
+    aws_access_key_id=access_key_id,
+    aws_secret_access_key=secret_access_key
 )
 
 app = Flask(__name__)
